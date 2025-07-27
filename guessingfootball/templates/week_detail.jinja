@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Guessing Football</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/team-logos.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #013369;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav a {
+            color: #013369;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .week-info {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .games-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .game-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .matchup-teams {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #013369;
+        }
+        .vs {
+            color: #999;
+            margin: 0 10px;
+            font-size: 0.9em;
+        }
+        .game-score {
+            font-size: 1em;
+            color: #666;
+            white-space: nowrap;
+        }
+        .game-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .home-team-logo {
+            display: flex;
+            align-items: center;
+        }
+        .win {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .loss {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .tie {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .scheduled {
+            color: #999;
+            font-style: italic;
+        }
+        .section-title {
+            font-size: 1.5em;
+            color: #013369;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #013369;
+            padding-bottom: 5px;
+        }
+        .week-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .week-nav-btn {
+            background-color: #013369;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .week-nav-btn:hover {
+            background-color: #0056b3;
+        }
+        .week-nav-btn.disabled {
+            background-color: #ccc;
+            color: #666;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 768px) {
+            .game-row-1 {
+                flex-direction: column !important;
+                gap: 10px;
+                align-items: center !important;
+            }
+            
+            .matchup-center {
+                gap: 10px !important;
+            }
+            
+            .game-score {
+                margin-left: 10px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏈 Week {{ week_number }} - 2025 NFL Season</h1>
+        <p>{{ season }} Season Schedule</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/teams">All Teams</a>
+        <a href="/week/{{ week_number }}">Week {{ week_number }}</a>
+        {% if user.is_authenticated %}
+            <a href="/accounts/account/">My Account ({{ user.username }})</a>
+            <a href="/accounts/logout/">Logout</a>
+        {% else %}
+            <a href="/accounts/login/">Login</a>
+            <a href="/accounts/signup/">Sign Up</a>
+        {% endif %}
+    </div>
+
+    <div class="content">
+        <div class="week-navigation">
+            {% if week_number > 1 %}
+                <a href="/week/{{ week_number - 1 }}" class="week-nav-btn">← Week {{ week_number - 1 }}</a>
+            {% else %}
+                <span class="week-nav-btn disabled">← Previous</span>
+            {% endif %}
+            
+            <span class="week-nav-btn" style="background-color: #666;">Week {{ week_number }}</span>
+            
+            {% if week_number < 22 %}
+                <a href="/week/{{ week_number + 1 }}" class="week-nav-btn">Week {{ week_number + 1 }} →</a>
+            {% else %}
+                <span class="week-nav-btn disabled">Next →</span>
+            {% endif %}
+        </div>
+
+        <div class="week-info">
+            <h2>Week {{ week_number }} Overview</h2>
+            <p><strong>{{ total_games }}</strong> games scheduled, <strong>{{ played_games }}</strong> games played</p>
+        </div>
+        
+        {% if games %}
+        <div class="section-title">Week {{ week_number }} Games</div>
+        <div class="games-list">
+            {% for game in games %}
+            <div class="game-card">
+                <div class="game-row-1" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px;">
+                    <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
+                    
+                    <div class="matchup-center" style="display: flex; align-items: center; gap: 15px;">
+                        <a href="/teams/{{ game.away_team.name|lower }}" style="text-decoration: none; color: inherit;">
+                            <span>{{ game.away_team.city or game.away_team.name }}</span>
+                        </a>
+                        <span class="vs">@</span>
+                        <a href="/teams/{{ game.home_team.name|lower }}" style="text-decoration: none; color: inherit;">
+                            <span>{{ game.home_team.city or game.home_team.name }}</span>
+                        </a>
+                        {% if not (game.home_score == 0 and game.away_score == 0) %}
+                        <div class="game-score" style="margin-left: 15px;">
+                            {{ game.away_score }} - {{ game.home_score }}
+                            {% if game.home_score > game.away_score %}
+                                <span class="win">{{ game.home_team.name }} W</span>
+                            {% elif game.away_score > game.home_score %}
+                                <span class="win">{{ game.away_team.name }} W</span>
+                            {% else %}
+                                <span class="tie">Tie</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <span class="team-logo {{ game.home_team.name }}">{{ game.home_team.name }}</span>
+                </div>
+                
+                <div class="game-row-2" style="width: 100%;">
+                    <div class="game-date" data-utc-time="{{ game.game_date.isoformat() }}" style="text-align: center; color: #666; font-size: 0.9em;">
+                        {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="content">
+            <h2>No Games Found</h2>
+            <p>No games are scheduled for Week {{ week_number }} of the 2025 season.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Convert all game dates and times to user's local timezone
+        function convertToLocalTime() {
+            const gameDates = document.querySelectorAll('.game-date[data-utc-time]');
+            
+            gameDates.forEach(dateElement => {
+                const utcTime = dateElement.getAttribute('data-utc-time');
+                const date = new Date(utcTime);
+                
+                // Format options for displaying date and time
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short'
+                };
+                
+                const localTimeString = date.toLocaleString('en-US', options);
+                dateElement.textContent = localTimeString;
+            });
+        }
+        
+        // Run conversion when page loads
+        document.addEventListener('DOMContentLoaded', convertToLocalTime);
+    </script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Guessing Football</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/team-logos.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #013369;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .welcome-message {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .features {
+            list-style-type: none;
+            padding: 0;
+        }
+        .features li {
+            background-color: #f0f8ff;
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #013369;
+            border-radius: 4px;
+        }
+        .matchups-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        .matchups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .matchup-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .matchup-teams {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #013369;
+            margin-bottom: 8px;
+        }
+        .matchup-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .vs {
+            color: #999;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏈 Guessing Football</h1>
+        <p>NFL Schedule and Game Predictions</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/teams">Teams</a>
+        {% if user.is_authenticated %}
+            <a href="/accounts/account/">My Account ({{ user.username }})</a>
+            <a href="/accounts/logout/">Logout</a>
+        {% else %}
+            <a href="/accounts/login/">Login</a>
+            <a href="/accounts/signup/">Sign Up</a>
+        {% endif %}
+    </div>
+    
+    <div class="content">
+        <div class="welcome-message">
+            {{ welcome_message }}
+        </div>
+        
+        <h2>Features</h2>
+        <ul class="features">
+            {% for feature in features %}
+            <li>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+        
+        <p><strong>Current Time:</strong> {{ current_time }}</p>
+    </div>
+    
+    <div class="matchups-section">
+        <h2>🏈 NFL Week 1 2025 Matchups</h2>
+        <p>Upcoming games for the 2025 NFL season opener</p>
+        <p style="text-align: center; margin-bottom: 15px;">
+            <a href="/week/1" style="color: #013369; font-weight: bold;">View All Week 1 Games</a> | 
+            <a href="/week/2" style="color: #013369; font-weight: bold;">Week 2</a> | 
+            <a href="/week/3" style="color: #013369; font-weight: bold;">Week 3</a> | 
+            <a href="/week/4" style="color: #013369; font-weight: bold;">Week 4</a> |
+            <a href="/week/5" style="color: #013369; font-weight: bold;">Week 5</a>
+        </p>
+        <p style="text-align: center; margin-bottom: 15px; font-size: 0.9em;">
+            <strong>Full 2025 Season Available:</strong> 
+            <a href="/week/1" style="color: #666;">Weeks 1-18</a> | 
+            <strong>18 weeks total</strong> (17 games + 1 bye week per team)
+        </p>
+        
+        <div class="matchups-grid">
+            {% for game in week1_2025_games %}
+            <div class="matchup-card">
+                <div class="matchup-teams" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span style="display: flex; align-items: center; gap: 5px;">
+                        <span class="team-logo {{ game.away_team.name }} small">{{ game.away_team.name }}</span>
+                        {{ game.away_team }}
+                    </span>
+                    <span class="vs">@</span>
+                    <span style="display: flex; align-items: center; gap: 5px;">
+                        <span class="team-logo {{ game.home_team.name }} small">{{ game.home_team.name }}</span>
+                        {{ game.home_team }}
+                    </span>
+                </div>
+                <div class="matchup-date" data-utc-time="{{ game.game_date.isoformat() }}">
+                    {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Convert all game times to user's local timezone
+        function convertToLocalTime() {
+            const matchupDates = document.querySelectorAll('.matchup-date[data-utc-time]');
+            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            matchupDates.forEach(dateElement => {
+                const utcTime = dateElement.getAttribute('data-utc-time');
+                const date = new Date(utcTime);
+                
+                // Format options for displaying the date and time
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short'
+                };
+                
+                const localTimeString = date.toLocaleString('en-US', options);
+                dateElement.textContent = localTimeString;
+            });
+        }
+        
+        // Run conversion when page loads
+        document.addEventListener('DOMContentLoaded', convertToLocalTime);
+    </script>
+</body>
+</html>

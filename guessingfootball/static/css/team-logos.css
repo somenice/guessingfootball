@@ -1,0 +1,82 @@
+/* NFL Team Logo Placeholders - Text-based approach */
+.team-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    margin-right: 8px;
+    text-align: center;
+    line-height: 1;
+}
+
+.team-logo.large {
+    width: 60px;
+    height: 60px;
+    font-size: 16px;
+}
+
+.team-logo.small {
+    width: 24px;
+    height: 24px;
+    font-size: 8px;
+}
+
+/* AFC East */
+.team-logo.BUF { background: linear-gradient(135deg, #00338D, #C60C30); }
+.team-logo.MIA { background: linear-gradient(135deg, #008E97, #FC4C02); }
+.team-logo.NE { background: linear-gradient(135deg, #002244, #C60C30); }
+.team-logo.NYJ { background: linear-gradient(135deg, #125740, #000000); }
+
+/* AFC North */
+.team-logo.BAL { background: linear-gradient(135deg, #241773, #000000); }
+.team-logo.CIN { background: linear-gradient(135deg, #FB4F14, #000000); }
+.team-logo.CLE { background: linear-gradient(135deg, #311D00, #FF3C00); }
+.team-logo.PIT { background: linear-gradient(135deg, #FFB612, #000000); }
+
+/* AFC South */
+.team-logo.HOU { background: linear-gradient(135deg, #03202F, #A71930); }
+.team-logo.IND { background: linear-gradient(135deg, #002C5F, #A2AAAD); }
+.team-logo.JAX { background: linear-gradient(135deg, #006778, #D7A22A); }
+.team-logo.TEN { background: linear-gradient(135deg, #0C2340, #4B92DB); }
+
+/* AFC West */
+.team-logo.DEN { background: linear-gradient(135deg, #FB4F14, #002244); }
+.team-logo.KC { background: linear-gradient(135deg, #E31837, #FFB81C); }
+.team-logo.LV { background: linear-gradient(135deg, #000000, #A5ACAF); }
+.team-logo.LAC { background: linear-gradient(135deg, #0080C6, #FFC20E); }
+
+/* NFC East */
+.team-logo.DAL { background: linear-gradient(135deg, #003594, #041E42); }
+.team-logo.NYG { background: linear-gradient(135deg, #0B2265, #A71930); }
+.team-logo.PHI { background: linear-gradient(135deg, #004C54, #A5ACAF); }
+.team-logo.WAS { background: linear-gradient(135deg, #5A1414, #FFB612); }
+
+/* NFC North */
+.team-logo.CHI { background: linear-gradient(135deg, #0B162A, #C83803); }
+.team-logo.DET { background: linear-gradient(135deg, #0076B6, #B0B7BC); }
+.team-logo.GB { background: linear-gradient(135deg, #203731, #FFB612); }
+.team-logo.MIN { background: linear-gradient(135deg, #4F2683, #FFC62F); }
+
+/* NFC South */
+.team-logo.ATL { background: linear-gradient(135deg, #A71930, #000000); }
+.team-logo.CAR { background: linear-gradient(135deg, #0085CA, #BFC0BF); }
+.team-logo.NO { background: linear-gradient(135deg, #D3BC8D, #000000); }
+.team-logo.TB { background: linear-gradient(135deg, #D50A0A, #FF7900); }
+
+/* NFC West */
+.team-logo.ARI { background: linear-gradient(135deg, #97233F, #000000); }
+.team-logo.SF { background: linear-gradient(135deg, #AA0000, #B3995D); }
+.team-logo.SEA { background: linear-gradient(135deg, #002244, #69BE28); }
+.team-logo.LA { background: linear-gradient(135deg, #003594, #FFA300); }
+
+/* Hover effects */
+.team-logo:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
