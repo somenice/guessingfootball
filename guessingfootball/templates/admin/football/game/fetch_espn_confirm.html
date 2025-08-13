@@ -1,0 +1,22 @@
+{% extends "admin/base_site.html" %}
+{% block title %}Fetch ESPN API Data{% endblock %}
+
+{% block content %}
+<div class="module aligned">
+    <h2>Fetch ESPN API Data</h2>
+    
+    <div class="form-row">
+        <div class="submit-row">
+            <p><strong>This will fetch the current preseason data from ESPN API and update the database.</strong></p>
+            <p>Endpoint: <code>https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?seasontype=1</code></p>
+            <p>This will update existing games and create new ones if needed, including live game status.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="submit" value="Fetch ESPN Data" class="default" style="background: #417690; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 14px;"/>
+                <a href="{% url 'admin:football_game_changelist' %}" class="button" style="margin-left: 10px;">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

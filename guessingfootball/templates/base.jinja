@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} - Guessing Football{% endblock %}</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/team-logos.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: {% block max_width %}800px{% endblock %};
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #013369;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav a {
+            color: #013369;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .footer {
+            background-color: #013369;
+            color: white;
+            padding: 30px 20px 20px 20px;
+            border-radius: 8px;
+            margin-top: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: normal;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .footer-wordmark {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+        }
+        .footer-legal {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 15px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        .footer-legal-links {
+            display: flex;
+            gap: 20px;
+        }
+        .footer-legal-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .footer-legal-links a:hover {
+            text-decoration: underline;
+        }
+        .footer-disclaimer {
+            font-size: 0.8em;
+            color: #ccc;
+            text-align: center;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+        .footer-gambling-disclaimer {
+            font-size: 0.8em;
+            color: #ccc;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .top-bar {
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        .top-bar a {
+            color: #495057;
+            text-decoration: none;
+            font-weight: normal;
+        }
+        .top-bar a:hover {
+            color: #013369;
+            text-decoration: underline;
+        }
+        .user-info {
+            color: #6c757d;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 8px 15px;
+                gap: 10px;
+                font-size: 0.8em;
+            }
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            .footer-legal {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .footer-legal-links {
+                justify-content: center;
+            }
+        }
+        {% block extra_styles %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        {% if user.is_authenticated %}
+            <span class="user-info">Welcome, {{ user.username }}</span>
+            <a href="/accounts/account/">My Account</a>
+            <a href="/accounts/logout/">Logout</a>
+        {% else %}
+            <a href="/accounts/login/">Login</a>
+            <a href="/accounts/signup/">Sign Up</a>
+        {% endif %}
+    </div>
+    
+    <div class="header">
+        <h1>{% block header_title %}🏈 Guessing Football{% endblock %}</h1>
+        <p>{% block header_subtitle %}NFL Schedule and Game Predictions{% endblock %}</p>
+    </div>
+    
+    <div class="nav">
+        <a href="/">Home</a>
+        <a href="/week/{{ current_nfl_week }}/">Schedule</a>
+        <a href="/teams">Teams</a>
+        {% block extra_nav %}{% endblock %}
+    </div>
+    
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+    
+    {% block extra_content %}{% endblock %}
+    
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/">Home</a>
+                <a href="/week/{{ current_nfl_week }}/">Schedule</a>
+                <a href="/teams">Teams</a>
+            </div>
+            <div class="footer-wordmark">
+                GuessingFootball
+            </div>
+        </div>
+        
+        <div class="footer-legal">
+            <div></div>
+            <div class="footer-legal-links">
+                <a href="/terms/">Terms of Service</a>
+                <a href="/privacy/">Privacy Policy</a>
+            </div>
+        </div>
+        
+        <div class="footer-disclaimer">
+            NFL and the NFL shield design are registered trademarks of the National Football League. 
+            The team names, logos and uniform designs are registered trademarks of the teams indicated.
+        </div>
+        
+        <div class="footer-gambling-disclaimer">
+            This is not a gambling website.
+        </div>
+    </div>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

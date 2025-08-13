@@ -18,18 +18,23 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from . import views
-from football.views import teams_list, team_detail, week_detail, signup, account
+from football.views import teams_list, team_detail, week_detail, game_detail, signup, account, logout_view
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('teams/', teams_list, name='teams'),
     path('teams/<str:team_abbr>/', team_detail, name='team_detail'),
     path('week/<int:week_number>/', week_detail, name='week_detail'),
+    path('game/<int:game_id>/', game_detail, name='game_detail'),
     path('admin/', admin.site.urls),
     
     # Authentication URLs
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.jinja'), name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/logout/', logout_view, name='logout'),
     path('accounts/signup/', signup, name='signup'),
     path('accounts/account/', account, name='account'),
+    
+    # Legal pages
+    path('terms/', views.terms_of_service, name='terms_of_service'),
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
 ]

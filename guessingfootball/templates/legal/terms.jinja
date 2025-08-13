@@ -1,0 +1,125 @@
+{% extends "base.jinja" %}
+
+{% block header_title %}📋 Terms of Service{% endblock %}
+{% block header_subtitle %}Rules and Guidelines{% endblock %}
+
+{% block extra_styles %}
+        .legal-content {
+            line-height: 1.6;
+            color: #333;
+        }
+        .legal-content h2 {
+            color: #013369;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #013369;
+            padding-bottom: 5px;
+        }
+        .legal-content h3 {
+            color: #013369;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .legal-content ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        .legal-content li {
+            margin: 8px 0;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box strong {
+            color: #856404;
+        }
+{% endblock %}
+
+{% block content %}
+    <div class="legal-content">
+        <h1>Terms of Service</h1>
+        <p><strong>Last updated:</strong> {{ current_time }}</p>
+        
+        <h2>Welcome to GuessingFootball</h2>
+        <p>By using our website, you agree to follow these simple rules. Breaking these terms will result in immediate account suspension or permanent ban, no exceptions.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong> Violation of any rule below results in immediate account action, up to and including permanent banning. We enforce these terms strictly and without appeal.
+        </div>
+        
+        <h2>Core Rules</h2>
+        
+        <h3>1. Account Responsibility</h3>
+        <ul>
+            <li>You are responsible for all activity on your account</li>
+            <li>Keep your login credentials secure</li>
+            <li>One account per person - no multiple accounts</li>
+            <li>Provide accurate information when creating your account</li>
+        </ul>
+        
+        <h3>2. Prohibited Behavior</h3>
+        <ul>
+            <li><strong>No harassment, abuse, or threats</strong> toward other users</li>
+            <li><strong>No spam, excessive posting, or disruptive behavior</strong></li>
+            <li><strong>No attempts to hack, exploit, or break the website</strong></li>
+            <li><strong>No automated tools, bots, or scrapers</strong></li>
+            <li><strong>No sharing of illegal content or links</strong></li>
+            <li><strong>No impersonation of others or false identities</strong></li>
+        </ul>
+        
+        <h3>3. Content Guidelines</h3>
+        <ul>
+            <li>Keep discussions related to NFL football and predictions</li>
+            <li>No offensive, discriminatory, or inappropriate content</li>
+            <li>No commercial promotion or advertising without permission</li>
+            <li>Respect intellectual property rights</li>
+        </ul>
+        
+        <h3>4. Data and Privacy</h3>
+        <ul>
+            <li>We collect minimal personal data (see Privacy Policy)</li>
+            <li>Do not share other users' personal information</li>
+            <li>Your predictions and stats may be publicly visible</li>
+        </ul>
+        
+        <h2>Enforcement</h2>
+        <p><strong>Zero tolerance policy:</strong> We enforce these terms immediately and without warning. Violations result in:</p>
+        <ul>
+            <li><strong>First offense:</strong> Account suspension (duration varies)</li>
+            <li><strong>Serious offenses:</strong> Immediate permanent ban</li>
+            <li><strong>No appeals process</strong> - decisions are final</li>
+        </ul>
+        
+        <h2>Website Usage</h2>
+        <ul>
+            <li>This is a sports information and prediction website</li>
+            <li><strong>This is NOT a gambling website</strong></li>
+            <li>No real money transactions or betting</li>
+            <li>Service provided "as is" without warranties</li>
+            <li>We may modify or discontinue features at any time</li>
+        </ul>
+        
+        <h2>Disclaimers</h2>
+        <ul>
+            <li>NFL statistics and schedules are for informational purposes</li>
+            <li>Predictions are for entertainment only</li>
+            <li>We are not affiliated with the NFL or any teams</li>
+            <li>Team names and logos are trademarks of their respective owners</li>
+        </ul>
+        
+        <h2>Changes to Terms</h2>
+        <p>We may update these terms at any time. Continued use of the website means you accept any changes. Check this page regularly for updates.</p>
+        
+        <h2>Contact</h2>
+        <p>Questions about these terms? The rules are simple and clear. Follow them, and you'll have no problems using GuessingFootball.</p>
+        
+        <div class="warning-box">
+            <strong>Final Warning:</strong> These terms are enforced strictly. Breaking any rule results in immediate account action. No exceptions, no appeals, no second chances for serious violations.
+        </div>
+    </div>
+{% endblock %}

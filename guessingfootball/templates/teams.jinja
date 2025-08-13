@@ -1,49 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Guessing Football</title>
-    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/team-logos.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #013369;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .nav {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .nav a {
-            color: #013369;
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: bold;
-        }
-        .nav a:hover {
-            text-decoration: underline;
-        }
-        .content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+{% extends "base.jinja" %}
+
+{% block max_width %}100%{% endblock %}
+
+{% block header_title %}🏈 NFL Teams{% endblock %}
+{% block header_subtitle %}{{ season }} Season{% endblock %}
+
+{% block extra_styles %}
         .stats-summary {
             background-color: #f0f8ff;
             padding: 15px;
@@ -51,11 +13,10 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        .teams-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        .teams-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
         .team-card {
             background-color: #f9f9f9;
@@ -104,78 +65,101 @@
             color: #666;
             margin-top: 5px;
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏈 NFL Teams</h1>
-        <p>{{ season }} Season</p>
+        .division-section {
+            margin-bottom: 30px;
+        }
+        .division-title {
+            font-size: 1.4em;
+            color: #013369;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background-color: #f0f8ff;
+            border-left: 4px solid #013369;
+            border-radius: 4px;
+        }
+        .division-teams {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .team-card {
+            width: 100%;
+            max-width: none;
+        }
+{% endblock %}
+
+{% block content %}
+    <div class="stats-summary">
+        <h2>2025 Season Overview</h2>
+        <p><strong>Teams:</strong> {{ total_teams }}</p>
+        <p><strong>Total Games:</strong> {{ total_2025_games }}</p>
     </div>
     
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/teams">Teams</a>
-        {% if user.is_authenticated %}
-            <a href="/accounts/account/">My Account ({{ user.username }})</a>
-            <a href="/accounts/logout/">Logout</a>
-        {% else %}
-            <a href="/accounts/login/">Login</a>
-            <a href="/accounts/signup/">Sign Up</a>
-        {% endif %}
-    </div>
-    
-    <div class="content">
-        <div class="stats-summary">
-            <h2>2025 Season Overview</h2>
-            <p><strong>Teams:</strong> {{ total_teams }}</p>
-            <p><strong>Total Games:</strong> {{ total_2025_games }}</p>
-        </div>
-        
-        <div class="teams-grid">
-            {% for team in teams %}
-            <div class="team-card">
-                <div class="team-name">
-                    <a href="/teams/{{ team.name|lower }}" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
-                        <span class="team-logo {{ team.name }}">{{ team.name }}</span>
-                        <div>
-                            {{ team.full_name or team.name }}
-                            <span style="font-size: 0.9em; color: #666; font-weight: normal;">
-                                ({{ team.wins_2025 }}-{{ team.losses_2025 }}-{{ team.ties_2025 }})
-                            </span>
-                            {% if team.conference and team.division %}
-                            <div style="font-size: 0.8em; color: #999; margin-top: 3px;">
-                                {{ team.conference }} {{ team.division }}
+    <div class="teams-container">
+        {% for conference in ['AFC', 'NFC'] %}
+            {% for division in division_order %}
+                {% if organized_teams[conference][division] %}
+                <div class="division-section">
+                    <h3 class="division-title">{{ conference }} {{ division }}</h3>
+                    <div class="division-teams">
+                        {% for team in organized_teams[conference][division] %}
+                        <div class="team-card">
+                            <div class="team-name">
+                                <a href="/teams/{{ team.name|lower }}" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                                    <span class="team-logo {{ team.name }}">{{ team.name }}</span>
+                                    <div>
+                                        {{ team.full_name or team.name }}
+                                        <span style="font-size: 0.9em; color: #666; font-weight: normal;">
+                                            ({{ team.wins_2025 }}-{{ team.losses_2025 }}-{{ team.ties_2025 }})
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="team-stats">
+                                <div class="stat">
+                                    <div class="stat-value">{{ team.wins_2025 }}</div>
+                                    <div class="stat-label">Wins</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">{{ team.losses_2025 }}</div>
+                                    <div class="stat-label">Losses</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">{{ team.ties_2025 }}</div>
+                                    <div class="stat-label">Ties</div>
+                                </div>
+                                <div class="stat">
+                                    <div class="stat-value">{{ team.total_games_2025 }}</div>
+                                    <div class="stat-label">Games Played</div>
+                                </div>
+                            </div>
+                            {% if team.total_games_2025 > 0 %}
+                            <div class="win-percentage">
+                                Win %: {{ "%.3f"|format(team.wins_2025 / team.total_games_2025) }}
                             </div>
                             {% endif %}
+                            
+                            <!-- 2024 Season Results -->
+                            <div class="team-2024-results" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
+                                <h4 style="margin: 0 0 10px 0; color: #495057; font-size: 1.1em;">2024 Season Results</h4>
+                                <div style="font-size: 0.9em; color: #666;">
+                                    <div><strong>Record:</strong> {{ team.wins_2024 }}-{{ team.losses_2024 }}-{{ team.ties_2024 }}</div>
+                                    {% if team.wins_2024 or team.losses_2024 or team.ties_2024 %}
+                                    <div><strong>Win %:</strong> {{ "%.3f"|format(team.win_percentage_2024) }}</div>
+                                    {% endif %}
+                                    <div style="margin-top: 8px;">
+                                        <strong>Rankings:</strong><br>
+                                        <span style="font-size: 0.85em;">{{ team.ranking_display_2024 }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </a>
-                </div>
-                <div class="team-stats">
-                    <div class="stat">
-                        <div class="stat-value">{{ team.wins_2025 }}</div>
-                        <div class="stat-label">Wins</div>
+                        {% endfor %}
                     </div>
-                    <div class="stat">
-                        <div class="stat-value">{{ team.losses_2025 }}</div>
-                        <div class="stat-label">Losses</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">{{ team.ties_2025 }}</div>
-                        <div class="stat-label">Ties</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">{{ team.total_games_2025 }}</div>
-                        <div class="stat-label">Games Played</div>
-                    </div>
-                </div>
-                {% if team.total_games_2025 > 0 %}
-                <div class="win-percentage">
-                    Win %: {{ "%.3f"|format(team.wins_2025 / team.total_games_2025) }}
                 </div>
                 {% endif %}
-            </div>
             {% endfor %}
-        </div>
+        {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}

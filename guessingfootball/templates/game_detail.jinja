@@ -1,0 +1,377 @@
+{% extends "base.jinja" %}
+
+{% block max_width %}1200px{% endblock %}
+
+{% block header_title %}
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="team-logo {{ game.away_team.name }} large">{{ game.away_team.name }}</span>
+            <div class="team-name-large">{{ game.away_team.city or game.away_team.name }}</div>
+        </div>
+        <div style="font-size: 1.5em; color: #013369; font-weight: bold;">@</div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="team-logo {{ game.home_team.name }} large">{{ game.home_team.name }}</span>
+            <div class="team-name-large">{{ game.home_team.city or game.home_team.name }}</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block header_subtitle %}
+    Week {{ game.week }} • {{ game.season }} Season
+    {% if game.is_live %}
+        • <span style="color: #dc3545; font-weight: bold;">LIVE</span>
+    {% elif is_completed %}
+        • Final
+    {% else %}
+        • <span data-utc-time="{{ game.game_date.isoformat() }}">
+            {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+        </span>
+    {% endif %}
+{% endblock %}
+
+{% block extra_styles %}
+    .content {
+        margin-bottom: 20px;
+    }
+    .game-score-card {
+        background: linear-gradient(135deg, #013369 0%, #1e4d72 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .score-display {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin: 20px 0;
+    }
+    .team-score {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.2em;
+    }
+    .score-number {
+        font-size: 3em;
+        font-weight: bold;
+        margin: 0 10px;
+    }
+    .vs-separator {
+        font-size: 2em;
+        opacity: 0.7;
+    }
+    .game-status {
+        font-size: 1.1em;
+        margin-top: 15px;
+        opacity: 0.9;
+    }
+    .stats-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    .team-stats {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .stats-title {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: #013369;
+        margin-bottom: 15px;
+        text-align: center;
+        border-bottom: 2px solid #013369;
+        padding-bottom: 5px;
+    }
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .stat-row:last-child {
+        border-bottom: none;
+    }
+    .stat-label {
+        color: #666;
+    }
+    .stat-value {
+        font-weight: bold;
+        color: #013369;
+    }
+    .h2h-section {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .section-title {
+        font-size: 1.4em;
+        color: #013369;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #013369;
+        padding-bottom: 5px;
+    }
+    .h2h-record {
+        font-size: 1.1em;
+        text-align: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: white;
+        border-radius: 5px;
+    }
+    .recent-games {
+        display: grid;
+        gap: 10px;
+    }
+    .recent-game {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: white;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
+    .game-result {
+        font-weight: bold;
+    }
+    .win { color: #28a745; }
+    .loss { color: #dc3545; }
+    .tie { color: #ffc107; }
+    
+    @media (max-width: 768px) {
+        .stats-section {
+            grid-template-columns: 1fr;
+        }
+        .score-display {
+            flex-direction: column;
+            gap: 20px;
+        }
+        .team-score {
+            justify-content: center;
+        }
+    }
+{% endblock %}
+
+{% block content %}
+    <!-- Game Score Card -->
+    <div class="game-score-card">
+        {% if is_completed or game.is_live %}
+            <div class="score-display">
+                <div class="team-score">
+                    <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
+                    <span class="score-number">{{ game.away_score }}</span>
+                </div>
+                <div class="vs-separator">-</div>
+                <div class="team-score">
+                    <span class="score-number">{{ game.home_score }}</span>
+                    <span class="team-logo {{ game.home_team.name }}">{{ game.home_team.name }}</span>
+                </div>
+            </div>
+            {% if game.is_live %}
+                <div class="game-status">
+                    🔴 LIVE - {{ game.quarter_display }} {{ game.time_remaining }}
+                    {% if game.game_status %}
+                        <br>{{ game.game_status }}
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="game-status">Final Score</div>
+            {% endif %}
+        {% else %}
+            <div class="score-display">
+                <div class="team-score">
+                    <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
+                    <span style="font-size: 1.5em; margin: 0 20px;">vs</span>
+                    <span class="team-logo {{ game.home_team.name }}">{{ game.home_team.name }}</span>
+                </div>
+            </div>
+            <div class="game-status">
+                <span data-utc-time="{{ game.game_date.isoformat() }}">
+                    Scheduled for {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+                </span>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Team Statistics -->
+    <div class="stats-section">
+        <!-- Away Team Stats -->
+        <div class="team-stats">
+            <div class="stats-title">
+                <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
+                {{ game.away_team.city or game.away_team.name }}
+                {% if away_team_stats.games_played > 0 %}
+                    ({{ away_team_stats.wins }}-{{ away_team_stats.losses }}-{{ away_team_stats.ties }})
+                {% else %}
+                    (Season opener)
+                {% endif %}
+            </div>
+            
+            {% if away_team_stats.games_played > 0 %}
+                <div class="stat-row">
+                    <span class="stat-label">Record:</span>
+                    <span class="stat-value">{{ away_team_stats.wins }}-{{ away_team_stats.losses }}-{{ away_team_stats.ties }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Win %:</span>
+                    <span class="stat-value">{{ "%.3f"|format(away_team_stats.win_percentage) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Points For:</span>
+                    <span class="stat-value">{{ away_team_stats.points_for }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Points Against:</span>
+                    <span class="stat-value">{{ away_team_stats.points_against }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Point Differential:</span>
+                    <span class="stat-value">{{ away_team_stats.points_for - away_team_stats.points_against }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Avg Points/Game:</span>
+                    <span class="stat-value">{{ "%.1f"|format(away_team_stats.points_for / away_team_stats.games_played) }}</span>
+                </div>
+            {% else %}
+                <div class="stat-row">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value">First game of season</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Home Team Stats -->  
+        <div class="team-stats">
+            <div class="stats-title">
+                <span class="team-logo {{ game.home_team.name }}">{{ game.home_team.name }}</span>
+                {{ game.home_team.city or game.home_team.name }}
+                {% if home_team_stats.games_played > 0 %}
+                    ({{ home_team_stats.wins }}-{{ home_team_stats.losses }}-{{ home_team_stats.ties }})
+                {% else %}
+                    (Season opener)
+                {% endif %}
+            </div>
+            
+            {% if home_team_stats.games_played > 0 %}
+                <div class="stat-row">
+                    <span class="stat-label">Record:</span>
+                    <span class="stat-value">{{ home_team_stats.wins }}-{{ home_team_stats.losses }}-{{ home_team_stats.ties }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Win %:</span>
+                    <span class="stat-value">{{ "%.3f"|format(home_team_stats.win_percentage) }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Points For:</span>
+                    <span class="stat-value">{{ home_team_stats.points_for }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Points Against:</span>
+                    <span class="stat-value">{{ home_team_stats.points_against }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Point Differential:</span>
+                    <span class="stat-value">{{ home_team_stats.points_for - home_team_stats.points_against }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Avg Points/Game:</span>
+                    <span class="stat-value">{{ "%.1f"|format(home_team_stats.points_for / home_team_stats.games_played) }}</span>
+                </div>
+            {% else %}
+                <div class="stat-row">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value">First game of season</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Head-to-Head Section -->
+    {% if h2h_stats.away_wins + h2h_stats.home_wins + h2h_stats.ties > 0 %}
+    <div class="h2h-section">
+        <div class="section-title">Head-to-Head Record</div>
+        <div class="h2h-record">
+            <strong>{{ game.away_team.name }}</strong> {{ h2h_stats.away_wins }} - {{ h2h_stats.home_wins }} <strong>{{ game.home_team.name }}</strong>
+            {% if h2h_stats.ties > 0 %}
+                ({{ h2h_stats.ties }} ties)
+            {% endif %}
+        </div>
+        
+        {% if h2h_stats.recent_games %}
+        <div style="margin-top: 15px;">
+            <h4 style="margin-bottom: 10px; color: #495057;">Recent Meetings:</h4>
+            <div class="recent-games">
+                {% for recent_game in h2h_stats.recent_games %}
+                <div class="recent-game">
+                    <span>{{ recent_game.game_date.strftime('%Y') }} - {{ recent_game.away_team.name }} @ {{ recent_game.home_team.name }}</span>
+                    <span class="game-result">
+                        {{ recent_game.away_score }} - {{ recent_game.home_score }}
+                        {% if recent_game.home_score > recent_game.away_score %}
+                            <span class="win">{{ recent_game.home_team.name }} W</span>
+                        {% elif recent_game.away_score > recent_game.home_score %}
+                            <span class="win">{{ recent_game.away_team.name }} W</span>
+                        {% else %}
+                            <span class="tie">Tie</span>
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Quick Links -->
+    <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f8f9fa; border-radius: 10px;">
+        <div style="margin-bottom: 15px;">
+            <a href="/teams/{{ game.away_team.name|lower }}/" style="margin-right: 20px; text-decoration: none; color: #013369; font-weight: bold;">
+                {{ game.away_team.name }} Team Page
+            </a>
+            <a href="/teams/{{ game.home_team.name|lower }}/" style="text-decoration: none; color: #013369; font-weight: bold;">
+                {{ game.home_team.name }} Team Page
+            </a>
+        </div>
+        <div>
+            <a href="/week/{{ game.week }}/" style="text-decoration: none; color: #666;">
+                ← Back to Week {{ game.week }}
+            </a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // Convert game date to local time
+        function convertToLocalTime() {
+            const gameDateElements = document.querySelectorAll('[data-utc-time]');
+            
+            gameDateElements.forEach(element => {
+                const utcTime = element.getAttribute('data-utc-time');
+                const date = new Date(utcTime);
+                
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZoneName: 'short'
+                };
+                
+                const localTimeString = date.toLocaleString('en-US', options);
+                element.textContent = localTimeString;
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', convertToLocalTime);
+    </script>
+{% endblock %}

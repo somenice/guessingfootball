@@ -1,48 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Guessing Football</title>
-    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/team-logos.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #013369;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .nav {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .nav a {
-            color: #013369;
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: bold;
-        }
-        .nav a:hover {
-            text-decoration: underline;
-        }
+{% extends "base.jinja" %}
+
+{% block max_width %}1200px{% endblock %}
+
+{% block header_title %}
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
+        <span class="team-logo {{ team.name }} large">{{ team.name }}</span>
+        <div class="team-name-large">{{ team.full_name or team.name }}</div>
+    </div>
+{% endblock %}
+
+{% block header_subtitle %}
+    {% if team.conference and team.division %}
+    {{ team.conference }} {{ team.division }} • 2025 Season
+    {% else %}
+    2025 Season
+    {% endif %}
+{% endblock %}
+
+{% block extra_nav %}
+    <a href="/teams/{{ team.name|lower }}">{{ team.name }} Details</a>
+{% endblock %}
+
+{% block extra_styles %}
         .content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
         .stats-grid {
@@ -87,6 +67,19 @@
             background-color: #f9f9f9;
             border-radius: 4px;
             border-left: 4px solid #013369;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .game-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
+        }
+        .game-item.bye-week:hover {
+            transform: none;
+            box-shadow: none;
         }
         .game-teams {
             font-weight: bold;
@@ -141,36 +134,10 @@
         .bye-week .game-teams {
             color: #666;
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
-            <span class="team-logo {{ team.name }} large">{{ team.name }}</span>
-            <div class="team-name-large">{{ team.full_name or team.name }}</div>
-        </div>
-        {% if team.conference and team.division %}
-        <p>{{ team.conference }} {{ team.division }} • 2025 Season</p>
-        {% else %}
-        <p>2025 Season</p>
-        {% endif %}
-    </div>
-    
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/teams">All Teams</a>
-        <a href="/teams/{{ team.name|lower }}">{{ team.name }} Details</a>
-        {% if user.is_authenticated %}
-            <a href="/accounts/account/">My Account ({{ user.username }})</a>
-            <a href="/accounts/logout/">Logout</a>
-        {% else %}
-            <a href="/accounts/login/">Login</a>
-            <a href="/accounts/signup/">Sign Up</a>
-        {% endif %}
-    </div>
-    
-    <div class="content">
-        <div class="section-title">2025 Season Statistics</div>
+{% endblock %}
+
+{% block content %}
+    <div class="section-title">2025 Season Statistics</div>
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-value">{{ total_games_2025 }}</div>
@@ -250,6 +217,53 @@
                 {{ points_for_2024 }} points for, {{ points_against_2024 }} points against
             </span>
         </div>
+        
+        <!-- 2024 Rankings Section -->
+        <div style="margin-top: 20px;">
+            <div class="section-title" style="font-size: 1.3em;">2024 Season Rankings</div>
+            
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.rank_2024_league }}</div>
+                    <div class="stat-label">Overall League Rank</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.rank_2024_offense_league }}</div>
+                    <div class="stat-label">Offense League Rank</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.rank_2024_defense_league }}</div>
+                    <div class="stat-label">Defense League Rank</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.points_for_2024 }}</div>
+                    <div class="stat-label">Points For</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.points_against_2024 }}</div>
+                    <div class="stat-label">Points Against</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ team.points_for_2024 - team.points_against_2024 }}</div>
+                    <div class="stat-label">Point Differential</div>
+                </div>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #495057;">Overall Rankings</h4>
+                <p style="margin: 5px 0; color: #666; font-size: 0.95em;">{{ team.ranking_display_2024 }}</p>
+            </div>
+            
+            <div style="background-color: #e8f4fd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #495057;">Offense Rankings (Points Scored)</h4>
+                <p style="margin: 5px 0; color: #666; font-size: 0.95em;">{{ team.offense_ranking_display_2024 }}</p>
+            </div>
+            
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #495057;">Defense Rankings (Points Allowed)</h4>
+                <p style="margin: 5px 0; color: #666; font-size: 0.95em;">{{ team.defense_ranking_display_2024 }}</p>
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -263,9 +277,9 @@
         {% endif %}
         <div class="games-list">
             {% for week_item in complete_schedule_2025 %}
-            <div class="game-item {% if week_item.type == 'bye' %}bye-week{% endif %}">
-                <div class="game-teams">
-                    {% if week_item.type == 'game' %}
+            {% if week_item.type == 'game' %}
+                <a href="/game/{{ week_item.game.id }}/" class="game-item">
+                    <div class="game-teams">
                         {% set game = week_item.game %}
                         <strong>Week {{ week_item.week }}:</strong>
                         {% if game.home_team == team %}
@@ -273,12 +287,8 @@
                         {% else %}
                             <strong>{{ team.city or team.name }}</strong> @ {{ game.home_team.city or game.home_team.name }}
                         {% endif %}
-                    {% else %}
-                        <strong>Week {{ week_item.week }}:</strong> <span style="color: #666; font-style: italic;">BYE WEEK</span>
-                    {% endif %}
-                </div>
-                <div class="game-score">
-                    {% if week_item.type == 'game' %}
+                    </div>
+                    <div class="game-score">
                         {% set game = week_item.game %}
                         {% if game.home_team == team %}
                             {% if game.home_score == 0 and game.away_score == 0 %}
@@ -307,24 +317,34 @@
                                 {% endif %}
                             {% endif %}
                         {% endif %}
-                    {% else %}
-                        <span style="color: #999; font-style: italic;">Rest & Preparation</span>
-                    {% endif %}
-                </div>
-                <div class="game-date">
-                    {% if week_item.type == 'game' %}
+                    </div>
+                    <div class="game-date">
                         <span data-utc-time="{{ week_item.game.game_date.isoformat() }}">
-                            {{ week_item.game.game_date.strftime('%m/%d/%Y') }}
+                            {{ week_item.game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
                         </span>
-                    {% else %}
+                        <div style="font-size: 0.7em; color: #013369; margin-top: 2px;">
+                            Click for details →
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <div class="game-item bye-week">
+                    <div class="game-teams">
+                        <strong>Week {{ week_item.week }}:</strong> <span style="color: #666; font-style: italic;">BYE WEEK</span>
+                    </div>
+                    <div class="game-score">
+                        <span style="color: #999; font-style: italic;">Rest & Preparation</span>
+                    </div>
+                    <div class="game-date">
                         <span style="color: #999;">No game</span>
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
             {% endfor %}
         </div>
-    </div>
+{% endblock %}
 
+{% block scripts %}
     <script>
         // Convert all game dates and times to user's local timezone
         function convertToLocalTime() {
@@ -337,8 +357,8 @@
                 // Format options for displaying date and time
                 const options = {
                     year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
+                    month: 'long',
+                    day: 'numeric',
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true,
@@ -353,5 +373,4 @@
         // Run conversion when page loads
         document.addEventListener('DOMContentLoaded', convertToLocalTime);
     </script>
-</body>
-</html>
+{% endblock %}

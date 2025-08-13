@@ -1,16 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Count, Q, F, Min, Max, Avg, Sum
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Team, Game
 from .forms import CustomUserCreationForm, UserProfileForm
+from .utils import get_live_games, check_live_games_exist
 
 def teams_list(request):
     # Get teams that have games in the 2025 season and calculate their stats manually
     teams_with_2025_games = Team.objects.filter(
         Q(home_games__season=2025) | Q(away_games__season=2025)
-    ).distinct().order_by('name')
+    ).distinct()
     
     # Calculate 2025 stats for each team manually
     teams_with_stats = []
@@ -60,12 +61,38 @@ def teams_list(request):
         team.ties_2025 = ties_2025
         teams_with_stats.append(team)
     
+    # Organize teams by conference and division
+    # Define division order: North, East, South, West
+    division_order = ['North', 'East', 'South', 'West']
+    
+    organized_teams = {
+        'AFC': {},
+        'NFC': {}
+    }
+    
+    # Initialize divisions
+    for conf in ['AFC', 'NFC']:
+        for div in division_order:
+            organized_teams[conf][div] = []
+    
+    # Sort teams into their divisions
+    for team in teams_with_stats:
+        if team.conference and team.division:
+            if team.conference in organized_teams and team.division in organized_teams[team.conference]:
+                organized_teams[team.conference][team.division].append(team)
+    
+    # Sort teams within each division by name
+    for conf in organized_teams:
+        for div in organized_teams[conf]:
+            organized_teams[conf][div].sort(key=lambda t: t.name)
+    
     # Get 2025 season stats
     total_2025_games = Game.objects.filter(season=2025).count()
     
     context = {
         'title': '2025 NFL Teams',
-        'teams': teams_with_stats,
+        'organized_teams': organized_teams,
+        'division_order': division_order,
         'total_teams': len(teams_with_stats),
         'total_2025_games': total_2025_games,
         'season': 2025
@@ -246,12 +273,33 @@ def week_detail(request, week_number):
     total_games = games.count()
     played_games = games.exclude(home_score=0, away_score=0).count()
     
+    # Calculate teams on bye week
+    # Get all teams that have games this week
+    teams_playing_this_week = set()
+    for game in games:
+        teams_playing_this_week.add(game.home_team)
+        teams_playing_this_week.add(game.away_team)
+    
+    # Get all teams and find those not playing this week
+    all_teams = Team.objects.filter(
+        Q(home_games__season=2025) | Q(away_games__season=2025)
+    ).distinct().order_by('name')
+    
+    bye_week_teams = []
+    for team in all_teams:
+        if team not in teams_playing_this_week:
+            bye_week_teams.append(team)
+    
+    # Sort bye week teams by conference and division
+    bye_week_teams.sort(key=lambda t: (t.conference or 'ZZZ', t.division or 'ZZZ', t.name))
+    
     context = {
         'title': f'Week {week_number} - 2025 NFL Season',
         'week_number': week_number,
         'games': games,
         'total_games': total_games,
         'played_games': played_games,
+        'bye_week_teams': bye_week_teams,
         'season': 2025
     }
     
@@ -291,3 +339,120 @@ def account(request):
         'user': request.user
     }
     return render(request, 'registration/account.jinja', context)
+
+def game_detail(request, game_id):
+    game = get_object_or_404(Game, id=game_id)
+    
+    # Only show regular season games (weeks 1-18)
+    if game.week < 1 or game.week > 18:
+        from django.http import Http404
+        raise Http404("Only regular season games have detail pages")
+    
+    # Calculate team records and streaks leading up to this game
+    away_team_stats = calculate_team_stats_before_game(game.away_team, game)
+    home_team_stats = calculate_team_stats_before_game(game.home_team, game)
+    
+    # Get head-to-head record
+    h2h_stats = calculate_head_to_head(game.away_team, game.home_team, before_date=game.game_date)
+    
+    # Check if game is completed
+    is_completed = game.home_score > 0 or game.away_score > 0 or not game.is_live
+    
+    context = {
+        'title': f'{game.away_team.name} @ {game.home_team.name} - Week {game.week}',
+        'game': game,
+        'away_team_stats': away_team_stats,
+        'home_team_stats': home_team_stats,
+        'h2h_stats': h2h_stats,
+        'is_completed': is_completed,
+        'season': game.season
+    }
+    
+    return render(request, 'game_detail.jinja', context)
+
+def calculate_team_stats_before_game(team, current_game):
+    """Calculate team statistics before the current game"""
+    # Get all games for this team in the same season before current game
+    team_games = Game.objects.filter(
+        Q(home_team=team) | Q(away_team=team),
+        season=current_game.season,
+        game_date__lt=current_game.game_date
+    ).exclude(home_score=0, away_score=0).order_by('game_date')
+    
+    wins = losses = ties = 0
+    points_for = points_against = 0
+    
+    for game in team_games:
+        if game.home_team == team:
+            team_score = game.home_score
+            opponent_score = game.away_score
+        else:
+            team_score = game.away_score  
+            opponent_score = game.home_score
+            
+        points_for += team_score
+        points_against += opponent_score
+        
+        if team_score > opponent_score:
+            wins += 1
+        elif team_score < opponent_score:
+            losses += 1
+        else:
+            ties += 1
+    
+    total_games = wins + losses + ties
+    win_pct = (wins + ties * 0.5) / total_games if total_games > 0 else 0
+    
+    return {
+        'wins': wins,
+        'losses': losses,
+        'ties': ties,
+        'win_percentage': win_pct,
+        'points_for': points_for,
+        'points_against': points_against,
+        'games_played': total_games
+    }
+
+def calculate_head_to_head(away_team, home_team, before_date=None):
+    """Calculate head-to-head record between two teams"""
+    h2h_games = Game.objects.filter(
+        Q(home_team=home_team, away_team=away_team) |
+        Q(home_team=away_team, away_team=home_team)
+    )
+    
+    if before_date:
+        h2h_games = h2h_games.filter(game_date__lt=before_date)
+    
+    h2h_games = h2h_games.exclude(home_score=0, away_score=0).order_by('-game_date')
+    
+    away_wins = home_wins = ties = 0
+    
+    for game in h2h_games:
+        if game.home_team == home_team:
+            # Home team is current home team
+            if game.home_score > game.away_score:
+                home_wins += 1
+            elif game.home_score < game.away_score:
+                away_wins += 1
+            else:
+                ties += 1
+        else:
+            # Away team is current home team (teams switched positions)
+            if game.away_score > game.home_score:
+                home_wins += 1
+            elif game.away_score < game.home_score:
+                away_wins += 1
+            else:
+                ties += 1
+    
+    return {
+        'away_wins': away_wins,
+        'home_wins': home_wins,
+        'ties': ties,
+        'recent_games': h2h_games[:5]  # Last 5 games
+    }
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been successfully logged out.')
+    return redirect('home')

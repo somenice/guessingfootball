@@ -1,33 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Guessing Football</title>
-    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/team-logos.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #013369;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+{% extends "base.jinja" %}
+
+{% block max_width %}1200px{% endblock %}
+
+{% block header_title %}🏈 Guessing Football{% endblock %}
+{% block header_subtitle %}2025 NFL Season{% endblock %}
+
+{% block extra_styles %}
         .welcome-message {
             font-size: 1.2em;
             color: #333;
@@ -51,73 +29,168 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-top: 20px;
         }
-        .matchups-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .games-list {
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
-        .matchup-card {
+        .game-card {
             background-color: #f9f9f9;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 15px;
+            padding: 15px 20px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
         }
         .matchup-teams {
             font-size: 1.2em;
             font-weight: bold;
             color: #013369;
-            margin-bottom: 8px;
-        }
-        .matchup-date {
-            font-size: 0.9em;
-            color: #666;
         }
         .vs {
             color: #999;
             margin: 0 10px;
+            font-size: 0.9em;
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏈 Guessing Football</h1>
-        <p>NFL Schedule and Game Predictions</p>
-    </div>
-    
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/teams">Teams</a>
-        {% if user.is_authenticated %}
-            <a href="/accounts/account/">My Account ({{ user.username }})</a>
-            <a href="/accounts/logout/">Logout</a>
-        {% else %}
-            <a href="/accounts/login/">Login</a>
-            <a href="/accounts/signup/">Sign Up</a>
-        {% endif %}
-    </div>
-    
-    <div class="content">
-        <div class="welcome-message">
-            {{ welcome_message }}
-        </div>
+        .game-score {
+            font-size: 1em;
+            color: #666;
+            white-space: nowrap;
+        }
+        .game-date {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .win {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .loss {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .tie {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .week-info {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         
-        <h2>Features</h2>
-        <ul class="features">
-            {% for feature in features %}
-            <li>{{ feature }}</li>
+        @media (max-width: 768px) {
+            .game-row-1 {
+                flex-direction: column !important;
+                gap: 10px;
+                align-items: center !important;
+            }
+            
+            .matchup-center {
+                gap: 10px !important;
+            }
+            
+            .game-score {
+                margin-left: 10px !important;
+            }
+        }
+{% endblock %}
+
+{% block content %}
+    <div class="welcome-message">
+        {{ welcome_message }}
+    </div>
+    
+    <h2>Features</h2>
+    <ul class="features">
+        {% for feature in features %}
+        <li>{{ feature }}</li>
+        {% endfor %}
+    </ul>
+    
+    <p><strong>Current Time:</strong> {{ current_time }}</p>
+{% endblock %}
+
+{% block extra_content %}
+    {% if has_live_games %}
+    <div class="matchups-section" style="border: 2px solid #d4edda; background-color: #d4edda;">
+        <h2 style="color: #155724;">🔴 LIVE PRESEASON GAMES</h2>
+        <div class="games-list">
+            {% for live_game in live_games %}
+            <div class="game-card" style="border: 2px solid #28a745; background-color: #f8fff9;">
+                <div class="game-row-1" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px;">
+                    <span class="team-logo {{ live_game.away_team.name }}">{{ live_game.away_team.name }}</span>
+                    
+                    <div class="matchup-center" style="display: flex; align-items: center; gap: 15px;">
+                        <a href="/teams/{{ live_game.away_team.name|lower }}" style="text-decoration: none; color: inherit;">
+                            <span>{{ live_game.away_team.city or live_game.away_team.name }}</span>
+                        </a>
+                        <span class="vs">@</span>
+                        <a href="/teams/{{ live_game.home_team.name|lower }}" style="text-decoration: none; color: inherit;">
+                            <span>{{ live_game.home_team.city or live_game.home_team.name }}</span>
+                        </a>
+                        <div class="game-score" style="margin-left: 15px; font-weight: bold; color: #155724;">
+                            {{ live_game.away_score }} - {{ live_game.home_score }}
+                            {% if live_game.home_score > live_game.away_score %}
+                                <span class="win">{{ live_game.home_team.name }} Leading</span>
+                            {% elif live_game.away_score > live_game.home_score %}
+                                <span class="win">{{ live_game.away_team.name }} Leading</span>
+                            {% else %}
+                                <span class="tie">Tied</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <span class="team-logo {{ live_game.home_team.name }}">{{ live_game.home_team.name }}</span>
+                </div>
+                
+                <div class="game-row-2" style="width: 100%;">
+                    <div style="text-align: center; color: #155724; font-weight: bold;">
+                        {% if live_game.quarter %}{{ live_game.quarter }} Quarter{% endif %}
+                        {% if live_game.time_remaining %} - {{ live_game.time_remaining }}{% endif %}
+                        <br><span style="font-size: 0.8em; color: #666;">{{ live_game.status }}</span>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
-        </ul>
-        
-        <p><strong>Current Time:</strong> {{ current_time }}</p>
+        </div>
     </div>
+    {% endif %}
     
     <div class="matchups-section">
-        <h2>🏈 NFL Week 1 2025 Matchups</h2>
-        <p>Upcoming games for the 2025 NFL season opener</p>
+        <h2>🏈 NFL Week {{ current_week }} 2025</h2>
+        <div class="week-info">
+            <p><strong>{{ total_games }}</strong> games scheduled, <strong>{{ played_games }}</strong> games played</p>
+        </div>
         <p style="text-align: center; margin-bottom: 15px;">
-            <a href="/week/1" style="color: #013369; font-weight: bold;">View All Week 1 Games</a> | 
+            <a href="/week/{{ current_week }}" style="color: #013369; font-weight: bold;">View Full Week {{ current_week }}</a> | 
+            <a href="/week/1" style="color: #013369; font-weight: bold;">Week 1</a> | 
             <a href="/week/2" style="color: #013369; font-weight: bold;">Week 2</a> | 
             <a href="/week/3" style="color: #013369; font-weight: bold;">Week 3</a> | 
             <a href="/week/4" style="color: #013369; font-weight: bold;">Week 4</a> |
@@ -129,39 +202,65 @@
             <strong>18 weeks total</strong> (17 games + 1 bye week per team)
         </p>
         
-        <div class="matchups-grid">
-            {% for game in week1_2025_games %}
-            <div class="matchup-card">
-                <div class="matchup-teams" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <span style="display: flex; align-items: center; gap: 5px;">
-                        <span class="team-logo {{ game.away_team.name }} small">{{ game.away_team.name }}</span>
-                        {{ game.away_team }}
-                    </span>
-                    <span class="vs">@</span>
-                    <span style="display: flex; align-items: center; gap: 5px;">
-                        <span class="team-logo {{ game.home_team.name }} small">{{ game.home_team.name }}</span>
-                        {{ game.home_team }}
-                    </span>
+        {% if current_week_games %}
+        <div class="games-list">
+            {% for game in current_week_games %}
+            <a href="/game/{{ game.id }}/" class="game-card">
+                <div class="game-row-1" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px;">
+                    <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
+                    
+                    <div class="matchup-center" style="display: flex; align-items: center; gap: 15px;">
+                        <span>{{ game.away_team.city or game.away_team.name }}</span>
+                        <span class="vs">@</span>
+                        <span>{{ game.home_team.city or game.home_team.name }}</span>
+                        {% if not (game.home_score == 0 and game.away_score == 0) %}
+                        <div class="game-score" style="margin-left: 15px;">
+                            {{ game.away_score }} - {{ game.home_score }}
+                            {% if game.home_score > game.away_score %}
+                                <span class="win">{{ game.home_team.name }} W</span>
+                            {% elif game.away_score > game.home_score %}
+                                <span class="win">{{ game.away_team.name }} W</span>
+                            {% else %}
+                                <span class="tie">Tie</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <span class="team-logo {{ game.home_team.name }}">{{ game.home_team.name }}</span>
                 </div>
-                <div class="matchup-date" data-utc-time="{{ game.game_date.isoformat() }}">
-                    {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+                
+                <div class="game-row-2" style="width: 100%;">
+                    <div class="game-date" data-utc-time="{{ game.game_date.isoformat() }}" style="text-align: center; color: #666; font-size: 0.9em;">
+                        {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
+                    </div>
+                    <div style="text-align: center; margin-top: 5px; font-size: 0.8em; color: #013369; font-weight: bold;">
+                        Click for game details →
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
+        {% else %}
+        <div class="content">
+            <h3>No Games Found</h3>
+            <p>No games are scheduled for Week {{ current_week }} of the 2025 season.</p>
+        </div>
+        {% endif %}
     </div>
+{% endblock %}
 
+{% block scripts %}
     <script>
-        // Convert all game times to user's local timezone
+        // Convert all game dates and times to user's local timezone
         function convertToLocalTime() {
-            const matchupDates = document.querySelectorAll('.matchup-date[data-utc-time]');
-            const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const gameDates = document.querySelectorAll('.game-date[data-utc-time]');
             
-            matchupDates.forEach(dateElement => {
+            gameDates.forEach(dateElement => {
                 const utcTime = dateElement.getAttribute('data-utc-time');
                 const date = new Date(utcTime);
                 
-                // Format options for displaying the date and time
+                // Format options for displaying date and time
                 const options = {
                     year: 'numeric',
                     month: 'long',
@@ -180,5 +279,4 @@
         // Run conversion when page loads
         document.addEventListener('DOMContentLoaded', convertToLocalTime);
     </script>
-</body>
-</html>
+{% endblock %}

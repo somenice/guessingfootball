@@ -1,48 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Guessing Football</title>
-    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/team-logos.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #013369;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .nav {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .nav a {
-            color: #013369;
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: bold;
-        }
-        .nav a:hover {
-            text-decoration: underline;
-        }
+{% extends "base.jinja" %}
+
+{% block max_width %}1200px{% endblock %}
+
+{% block header_title %}🏈 Week {{ week_number }} - 2025 NFL Season{% endblock %}
+{% block header_subtitle %}{{ season }} Season Schedule{% endblock %}
+
+{% block extra_nav %}
+    <a href="/week/{{ week_number }}">Week {{ week_number }}</a>
+{% endblock %}
+
+{% block extra_styles %}
         .content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
         .week-info {
@@ -68,10 +36,14 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            text-decoration: none;
+            color: inherit;
         }
         .game-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-decoration: none;
+            color: inherit;
         }
         .matchup-teams {
             font-size: 1.2em;
@@ -131,6 +103,44 @@
             border-bottom: 2px solid #013369;
             padding-bottom: 5px;
         }
+        .bye-week-section {
+            margin-top: 40px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .bye-week-summary {
+            margin-top: 15px;
+        }
+        .bye-teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .bye-team-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+        .bye-team-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bye-team-info {
+            flex: 1;
+        }
+        .bye-team-division {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 2px;
+        }
         .week-navigation {
             display: flex;
             justify-content: center;
@@ -169,29 +179,10 @@
                 margin-left: 10px !important;
             }
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏈 Week {{ week_number }} - 2025 NFL Season</h1>
-        <p>{{ season }} Season Schedule</p>
-    </div>
-    
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/teams">All Teams</a>
-        <a href="/week/{{ week_number }}">Week {{ week_number }}</a>
-        {% if user.is_authenticated %}
-            <a href="/accounts/account/">My Account ({{ user.username }})</a>
-            <a href="/accounts/logout/">Logout</a>
-        {% else %}
-            <a href="/accounts/login/">Login</a>
-            <a href="/accounts/signup/">Sign Up</a>
-        {% endif %}
-    </div>
+{% endblock %}
 
-    <div class="content">
-        <div class="week-navigation">
+{% block content %}
+    <div class="week-navigation">
             {% if week_number > 1 %}
                 <a href="/week/{{ week_number - 1 }}" class="week-nav-btn">← Week {{ week_number - 1 }}</a>
             {% else %}
@@ -216,18 +207,14 @@
         <div class="section-title">Week {{ week_number }} Games</div>
         <div class="games-list">
             {% for game in games %}
-            <div class="game-card">
+            <a href="/game/{{ game.id }}/" class="game-card">
                 <div class="game-row-1" style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 10px;">
                     <span class="team-logo {{ game.away_team.name }}">{{ game.away_team.name }}</span>
                     
                     <div class="matchup-center" style="display: flex; align-items: center; gap: 15px;">
-                        <a href="/teams/{{ game.away_team.name|lower }}" style="text-decoration: none; color: inherit;">
-                            <span>{{ game.away_team.city or game.away_team.name }}</span>
-                        </a>
+                        <span>{{ game.away_team.city or game.away_team.name }}</span>
                         <span class="vs">@</span>
-                        <a href="/teams/{{ game.home_team.name|lower }}" style="text-decoration: none; color: inherit;">
-                            <span>{{ game.home_team.city or game.home_team.name }}</span>
-                        </a>
+                        <span>{{ game.home_team.city or game.home_team.name }}</span>
                         {% if not (game.home_score == 0 and game.away_score == 0) %}
                         <div class="game-score" style="margin-left: 15px;">
                             {{ game.away_score }} - {{ game.home_score }}
@@ -249,8 +236,11 @@
                     <div class="game-date" data-utc-time="{{ game.game_date.isoformat() }}" style="text-align: center; color: #666; font-size: 0.9em;">
                         {{ game.game_date.strftime('%B %d, %Y at %I:%M %p') }} UTC
                     </div>
+                    <div style="text-align: center; margin-top: 5px; font-size: 0.8em; color: #013369; font-weight: bold;">
+                        Click for game details →
+                    </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
@@ -259,8 +249,39 @@
             <p>No games are scheduled for Week {{ week_number }} of the 2025 season.</p>
         </div>
         {% endif %}
-    </div>
+        
+        <!-- Bye Week Teams Summary -->
+        {% if bye_week_teams %}
+        <div class="bye-week-section">
+            <div class="section-title">Teams on Bye Week {{ week_number }}</div>
+            <div class="bye-week-summary">
+                <p><strong>{{ bye_week_teams|length }} teams</strong> are on bye this week:</p>
+                <div class="bye-teams-grid">
+                    {% for team in bye_week_teams %}
+                    <div class="bye-team-card">
+                        <span class="team-logo {{ team.name }}">{{ team.name }}</span>
+                        <div class="bye-team-info">
+                            <a href="/teams/{{ team.name|lower }}" style="text-decoration: none; color: inherit;">
+                                <strong>{{ team.full_name or team.name }}</strong>
+                            </a>
+                            <div class="bye-team-division">{{ team.conference }} {{ team.division }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bye-week-section">
+            <div class="section-title">Teams on Bye Week {{ week_number }}</div>
+            <div class="bye-week-summary">
+                <p>No teams are on bye this week - all 32 teams are playing!</p>
+            </div>
+        </div>
+        {% endif %}
+{% endblock %}
 
+{% block scripts %}
     <script>
         // Convert all game dates and times to user's local timezone
         function convertToLocalTime() {
@@ -289,5 +310,4 @@
         // Run conversion when page loads
         document.addEventListener('DOMContentLoaded', convertToLocalTime);
     </script>
-</body>
-</html>
+{% endblock %}

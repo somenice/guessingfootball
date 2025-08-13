@@ -1,48 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - Guessing Football</title>
-    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/static/css/team-logos.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #013369;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .nav {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .nav a {
-            color: #013369;
-            text-decoration: none;
-            margin-right: 20px;
-            font-weight: bold;
-        }
-        .nav a:hover {
-            text-decoration: underline;
-        }
+{% extends "base.jinja" %}
+
+{% block max_width %}500px{% endblock %}
+
+{% block header_title %}🏈 Join Guessing Football{% endblock %}
+{% block header_subtitle %}Create your account{% endblock %}
+
+{% block extra_nav %}
+    <a href="/accounts/login/">Login</a>
+{% endblock %}
+
+{% block extra_styles %}
         .content {
-            background-color: white;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .form-group {
             margin-bottom: 20px;
@@ -109,80 +78,66 @@
             color: #666;
             margin-top: 5px;
         }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>🏈 Join Guessing Football</h1>
-        <p>Create your account</p>
-    </div>
-    
-    <div class="nav">
-        <a href="/">Home</a>
-        <a href="/teams">Teams</a>
-        <a href="/accounts/login/">Login</a>
-    </div>
+{% endblock %}
 
-    <div class="content">
-        {% if form.errors %}
-        <div class="alert alert-error">
-            <strong>Please correct the errors below:</strong>
-            {% for field, errors in form.errors.items() %}
-                {% for error in errors %}
-                    <br>{{ error }}
-                {% endfor %}
+{% block content %}
+    {% if form.errors %}
+    <div class="alert alert-error">
+        <strong>Please correct the errors below:</strong>
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <br>{{ error }}
             {% endfor %}
-        </div>
-        {% endif %}
-
-        <form method="post">
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-            
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Username:</label>
-                {{ form.username }}
-                {% if form.username.help_text %}
-                <div class="help-text">{{ form.username.help_text }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">Email:</label>
-                {{ form.email }}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.first_name.id_for_label }}">First Name (optional):</label>
-                {{ form.first_name }}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.last_name.id_for_label }}">Last Name (optional):</label>
-                {{ form.last_name }}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.password1.id_for_label }}">Password:</label>
-                {{ form.password1 }}
-                {% if form.password1.help_text %}
-                <div class="help-text">{{ form.password1.help_text }}</div>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
-                {{ form.password2 }}
-                {% if form.password2.help_text %}
-                <div class="help-text">{{ form.password2.help_text }}</div>
-                {% endif %}
-            </div>
-            
-            <button type="submit" class="btn">Create Account</button>
-        </form>
-
-        <div class="login-link">
-            Already have an account? <a href="/accounts/login/">Login here</a>
-        </div>
+        {% endfor %}
     </div>
-</body>
-</html>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}">Username:</label>
+            {{ form.username }}
+            {% if form.username.help_text %}
+            <div class="help-text">{{ form.username.help_text }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">Email:</label>
+            {{ form.email }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">First Name (optional):</label>
+            {{ form.first_name }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.last_name.id_for_label }}">Last Name (optional):</label>
+            {{ form.last_name }}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Password:</label>
+            {{ form.password1 }}
+            {% if form.password1.help_text %}
+            <div class="help-text">{{ form.password1.help_text }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+            {{ form.password2 }}
+            {% if form.password2.help_text %}
+            <div class="help-text">{{ form.password2.help_text }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn">Create Account</button>
+    </form>
+
+    <div class="login-link">
+        Already have an account? <a href="/accounts/login/">Login here</a>
+    </div>
+{% endblock %}

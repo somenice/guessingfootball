@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% block title %}Calculate 2024 Season Rankings{% endblock %}
+
+{% block content %}
+<div class="module aligned">
+    <h2>Calculate 2024 Season Rankings</h2>
+    
+    <div class="form-row">
+        <div class="submit-row">
+            <p><strong>This will calculate and update 2024 season rankings for all teams.</strong></p>
+            <p>Rankings will be calculated based on win percentage from completed 2024 games:</p>
+            <ul>
+                <li><strong>League Rankings:</strong> 1-32 across all NFL teams</li>
+                <li><strong>Conference Rankings:</strong> 1-16 within AFC/NFC</li>
+                <li><strong>Division Rankings:</strong> 1-4 within each division</li>
+            </ul>
+            <p>This process will update all Team records with current 2024 statistics and rankings.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <input type="submit" value="Calculate Rankings" class="default" style="background: #417690; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 14px;"/>
+                <a href="{% url 'admin:football_team_changelist' %}" class="button" style="margin-left: 10px;">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
